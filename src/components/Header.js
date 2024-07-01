@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState, useCallback } from "react";
+import React from "react";
 import {
   AppBar,
   Toolbar,
@@ -17,23 +15,8 @@ import {
 } from "@mui/icons-material";
 import Image from "next/image";
 import logo from "../../public/images/logo-circle-green.svg";
-import _ from "lodash";
 
-const Header = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const debouncedSearch = useCallback(
-    _.debounce((query) => {
-      onSearch(query);
-    }, 300),
-    []
-  );
-
-  const handleChange = (event) => {
-    const value = event.target.value;
-    setSearchTerm(value);
-    debouncedSearch(value.trim());
-  };
+const Header = () => {
   return (
     <AppBar
       position="static"
@@ -44,7 +27,7 @@ const Header = ({ onSearch }) => {
         padding: { xs: "0 16px", sm: "0 32px", md: "0 64px" },
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between", flexWrap: "wrap" }}>
+      <Toolbar sx={{ justifyContent: "space-between", flexWrap: "nowrap" }}>
         <Box display="flex" alignItems="center">
           <IconButton
             edge="start"
@@ -59,7 +42,7 @@ const Header = ({ onSearch }) => {
             display="flex"
             alignItems="center"
             ml={2}
-            sx={{ color: "black", display: { xs: "none", md: "flex" } }}
+            sx={{ color: "black", display: { xs: "none", sm: "flex" } }}
           >
             <LocationOnIcon />
             <Typography variant="body1" ml={1}>
@@ -104,8 +87,6 @@ const Header = ({ onSearch }) => {
               display: "flex",
               alignItems: "center",
             }}
-            value={searchTerm}
-            onChange={handleChange}
           />
         </Box>
 

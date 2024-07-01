@@ -17,31 +17,31 @@ const SearchContext = React.createContext();
 const categories = [
   {
     name: "FREE DRINKS",
-    url: "http://127.0.0.1:5000/api/v1/stores",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores",
   },
   {
     name: "Amala Hotspot 🔥",
-    url: "http://127.0.0.1:5000/api/v1/stores?category=Amala Hotspot 🔥",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores?category=Amala Hotspot 🔥",
   },
   {
     name: "Hand Picked for you!😋",
-    url: "http://127.0.0.1:5000/api/v1/stores?category=Hand Picked for you!😋",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores?category=Hand Picked for you!😋",
   },
   {
     name: "Promos 4 You! 😍",
-    url: "http://127.0.0.1:5000/api/v1/stores?category=Promos 4 You! 😍",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores?category=Promos 4 You! 😍",
   },
   {
     name: "Finger Foods🍕🥯",
-    url: "http://127.0.0.1:5000/api/v1/stores?category=Finger Foods🍕🥯",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores?category=Finger Foods🍕🥯",
   },
   {
     name: "Grocery Stores",
-    url: "http://127.0.0.1:5000/api/v1/stores?category=Grocery Stores",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores?category=Grocery Stores",
   },
   {
     name: "All Restaurants",
-    url: "http://127.0.0.1:5000/api/v1/stores?category=All Restaurants",
+    url: "https://heayfoodtestb.onrender.com/api/v1/stores?category=All Restaurants",
   },
 ];
 
@@ -74,10 +74,9 @@ const StoresPage = () => {
   useEffect(() => {
     const handleSearch = async () => {
       if (searchTerm) {
-        console.log(searchTerm)
         try {
           const response = await axios.get(
-            `http://127.0.0.1:5000/api/v1/stores/search/${searchTerm}`
+            `https://heayfoodtestb.onrender.com/api/v1/stores/search/${searchTerm}`
           );
           setSearchResults(response.data);
         } catch (error) {

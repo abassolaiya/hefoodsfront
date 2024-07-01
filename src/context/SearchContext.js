@@ -1,13 +1,14 @@
-// SearchContext.js
+import React, { createContext, useContext, useState } from "react";
 
-import { createContext, useContext, useState } from 'react';
-
+// Create a new context object
 const SearchContext = createContext();
 
+// Custom hook to access search context
 export const useSearch = () => {
   return useContext(SearchContext);
 };
 
+// Provider component for managing search state
 export const SearchProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState(""); // Initialize searchTerm with an empty string
 
@@ -17,30 +18,3 @@ export const SearchProvider = ({ children }) => {
     </SearchContext.Provider>
   );
 };
-
-
-
-
-const SidebarContext = createContext();
-
-export function Sidebar() {
-  const [isOpen, setIsOpen] = useState();
-
-  return (
-    <SidebarContext.Provider value={{ isOpen }}>
-      <SidebarNav />
-    </SidebarContext.Provider>
-  );
-}
-
-function SidebarNav() {
-  let { isOpen } = useContext(SidebarContext);
-
-  return (
-    <div>
-      <p>Home</p>
-
-      {isOpen && <Subnav />}
-    </div>
-  );
-}

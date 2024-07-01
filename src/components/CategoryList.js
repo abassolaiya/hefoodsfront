@@ -1,5 +1,4 @@
-"use client";
-
+// components/CategoryList.tsx
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import Image from "next/image";
@@ -26,7 +25,6 @@ const CategoryCard = ({ category }) => (
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        // backgroundColor: "#f1f1f1",
       }}
     >
       <Image
@@ -56,7 +54,7 @@ const CategoryList = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:5000/api/v1/category")
+    fetch("https://heayfoodtestb.onrender.com/api/v1/category")
       .then((response) => response.json())
       .then((data) => setCategories(data))
       .catch((error) => console.error("Error fetching categories:", error));
