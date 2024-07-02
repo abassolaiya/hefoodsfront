@@ -42,8 +42,8 @@ const ImageCarousel = () => {
         alignItems: "center",
         overflow: "hidden",
         backgroundColor: "white",
-        height: "calc((100vw / 3) * (100 / 220))", // Adjusted height with same ratio from 100px by 220px
-        padding: "0 40px", // Add padding to have distance from the first image and the arrow
+        height: "calc((100vw / 3) * (100 / 220))",
+        padding: "0 40px",
       }}
     >
       <IconButton
@@ -52,7 +52,7 @@ const ImageCarousel = () => {
           position: "absolute",
           left: 10,
           zIndex: 1,
-          backgroundColor: "lightgray", // Lighter background color
+          backgroundColor: "lightgray",
           color: "black",
           "&:hover": { backgroundColor: "gray" },
         }}
@@ -68,25 +68,24 @@ const ImageCarousel = () => {
           "&::-webkit-scrollbar": {
             display: "none",
           },
-          gap: 4, // Increased gap between images
+          gap: 4,
           width: "100%",
-          paddingLeft: "20px", // Adjusted padding to start images after the arrow
+          paddingLeft: "20px",
         }}
       >
         {images.map((src, index) => (
           <Box
             key={index}
             sx={{
-              flex: "0 0 30%", // Increased width of each image
-              height: "calc((100vw / 3) * (80 / 220))", // Reduced height with the same ratio
-              borderRadius: 2, // Added border radius
+              flex: "0 0 30%",
+              height: "calc((100vw / 3) * (80 / 220))",
+              borderRadius: 2,
               overflow: "hidden",
               scrollSnapAlign: "center",
               position: "relative",
-              cursor: "pointer", // Added cursor pointer for better UX
+              cursor: "pointer",
             }}
             onClick={() => {
-              // Handle image click here, e.g., navigate programmatically
               console.log(`Clicked on image ${index}`);
             }}
           >
@@ -94,7 +93,7 @@ const ImageCarousel = () => {
               src={src}
               alt={`Carousel image ${index + 1}`}
               layout="fill"
-              objectFit="cover" // Cut the image when necessary
+              objectFit="cover"
             />
           </Box>
         ))}
@@ -105,7 +104,7 @@ const ImageCarousel = () => {
           position: "absolute",
           right: 10,
           zIndex: 1,
-          backgroundColor: "lightgray", // Lighter background color
+          backgroundColor: "lightgray",
           color: "black",
           "&:hover": { backgroundColor: "gray" },
         }}

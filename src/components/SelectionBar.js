@@ -27,7 +27,7 @@ const SelectionBar = () => {
           alignItems: "center",
           bgcolor: selected === "restaurant" ? "black" : "transparent",
           borderRadius: "40px",
-          padding: "16px 32px", // Increased padding
+          padding: "16px 32px",
           color: selected === "restaurant" ? "white" : "black",
           marginRight: "16px",
           "&:hover": {
@@ -49,7 +49,7 @@ const SelectionBar = () => {
           alignItems: "center",
           bgcolor: selected === "groceries" ? "black" : "transparent",
           borderRadius: "40px",
-          padding: "16px 32px", // Increased padding
+          padding: "16px 32px",
           color: selected === "groceries" ? "white" : "black",
           "&:hover": {
             bgcolor: "black",

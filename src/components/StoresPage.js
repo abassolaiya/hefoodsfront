@@ -1,18 +1,20 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
   IconButton,
   Checkbox,
   FormControlLabel,
+  FormGroup,
 } from "@mui/material";
 import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import SortIcon from "@mui/icons-material/Sort";
+import StarIcon from "@mui/icons-material/Star";
 import Image from "next/image";
 import axios from "axios";
-
-// Search Context
-const SearchContext = React.createContext();
+import { useSearch } from "../context/SearchContext";
+import { useCategorySearch } from "../context/CategorySearchContext";
 
 const categories = [
   {
@@ -55,9 +57,12 @@ const sortingOptions = [
 
 const StoresPage = () => {
   const [categoriesData, setCategoriesData] = useState([]);
+  const [storeCount, setStoreCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
-  const { searchTerm } = useContext(SearchContext) || {};
+  const [categorySearchResults, setCategorySearchResults] = useState([]);
+  const { searchTerm } = useSearch();
+  const { categorySearchTerm } = useCategorySearch();
 
   useEffect(() => {
     const fetchAllCategoriesData = async () => {
@@ -65,7 +70,12 @@ const StoresPage = () => {
         fetchStoresByCategory(category)
       );
       const results = await Promise.all(promises);
+      const totalStores = results.reduce(
+        (acc, category) => acc + category.content.length,
+        0
+      );
       setCategoriesData(results);
+      setStoreCount(totalStores);
     };
 
     fetchAllCategoriesData();
@@ -90,6 +100,26 @@ const StoresPage = () => {
 
     handleSearch();
   }, [searchTerm]);
+
+  useEffect(() => {
+    const handleCategorySearch = async () => {
+      if (categorySearchTerm) {
+        try {
+          const response = await axios.get(
+            `https://heayfoodtestb.onrender.com/api/v1/products/search/${categorySearchTerm}`
+          );
+          setCategorySearchResults(response.data);
+        } catch (error) {
+          console.error("Error fetching search results:", error);
+          setCategorySearchResults([]);
+        }
+      } else {
+        setCategorySearchResults([]);
+      }
+    };
+
+    handleCategorySearch();
+  }, [categorySearchTerm]);
 
   const fetchStoresByCategory = async (category) => {
     try {
@@ -132,52 +162,63 @@ const StoresPage = () => {
       }}
     >
       {/* Sidebar */}
-      <Box
-        sx={{
-          display: { xs: "none", md: "block" }, // Hide sidebar on mobile view
-          position: "sticky",
-          top: 0,
-          alignSelf: "flex-start",
-          width: "25%", // Increase width for sidebar
-          padding: 2,
-          borderRight: "1px solid #ccc",
-          backgroundColor: "white",
-          height: "100vh", // Ensures the sidebar takes the full viewport height
-          overflowY: "auto", // Allows the sidebar to scroll if content overflows
-        }}
-      >
-        <Typography variant="h5" sx={{ color: "black" }}>
-          All Stores
-        </Typography>
-        <Typography variant="h6" sx={{ color: "black" }}>
-          ({categoriesData.length} Categories)
-        </Typography>
-        <Typography variant="h6" sx={{ color: "black" }} mt={2}>
-          Sort
-        </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
-          {sortingOptions.map((option) => (
-            <FormControlLabel
-              key={option}
-              control={<Checkbox />}
-              label={option}
-              sx={{ color: "black" }}
-            />
-          ))}
+      {!(searchResults.length > 0 || categorySearchResults.length > 0) && (
+        <Box
+          sx={{
+            display: { xs: "none", md: "block" },
+            position: "sticky",
+            top: 0,
+            alignSelf: "flex-start",
+            width: "25%",
+            padding: 2,
+            paddingLeft: 8,
+            backgroundColor: "white",
+            height: "100vh",
+            overflowY: "auto",
+          }}
+        >
+          <Typography variant="h5" sx={{ color: "black" }}>
+            All Stores
+          </Typography>
+          <Typography variant="h6" sx={{ color: "black" }}>
+            ({storeCount} Stores)
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ color: "black" }}
+            mt={2}
+            display="flex"
+            alignItems="center"
+          >
+            <SortIcon sx={{ marginRight: 1 }} />
+            Sort
+          </Typography>
+          <FormGroup sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {sortingOptions.map((option) => (
+              <FormControlLabel
+                key={option}
+                control={<Checkbox sx={{ borderRadius: "50%" }} />}
+                label={option}
+                sx={{ color: "black" }}
+              />
+            ))}
+          </FormGroup>
         </Box>
-      </Box>
+      )}
 
       {/* Main Content */}
       <Box
         sx={{
-          width: { xs: "100%", md: selectedCategory ? "100%" : "75%" }, // Adjusted width for main content when showing all stores
+          width: { xs: "100%", md: selectedCategory ? "100%" : "75%" },
           padding: 2,
-          marginLeft: { xs: 0, md: selectedCategory ? 0 : "10px" }, // Adjusted left margin for main content
+          marginLeft: { xs: 0, md: selectedCategory ? 0 : "0px" },
         }}
       >
         {categoriesData.length > 0 ? (
           searchTerm && searchResults.length > 0 ? (
             <SearchResultsSection stores={searchResults} />
+          ) : categorySearchResults.length > 0 ? (
+            <CategorySearchResultsSection stores={categorySearchResults} />
           ) : selectedCategory ? (
             <CategorySection
               category={selectedCategory}
@@ -187,8 +228,8 @@ const StoresPage = () => {
               }
               showAll={true}
               onBack={() => setSelectedCategory(null)}
-              scrollLeft={() => scrollLeft(scrollRef)}
-              scrollRight={() => scrollRight(scrollRef)}
+              scrollLeft={scrollLeft}
+              scrollRight={scrollRight}
             />
           ) : (
             categoriesData.map((categoryData, index) => (
@@ -197,6 +238,8 @@ const StoresPage = () => {
                 category={categoryData.title}
                 stores={categoryData.content}
                 onSeeAll={handleSeeAll}
+                scrollLeft={scrollLeft}
+                scrollRight={scrollRight}
               />
             ))
           )
@@ -222,7 +265,7 @@ const CategorySection = ({
   const scrollRef = useRef(null);
 
   return (
-    <Box sx={{ marginBottom: 4 }}>
+    <Box sx={{ marginBottom: 4, borderBottom: "1px solid #e0e0e0" }}>
       <Box
         sx={{
           display: "flex",
@@ -235,7 +278,7 @@ const CategorySection = ({
           variant="h6"
           sx={{
             color: "black",
-            fontSize: { xs: "1rem", md: "1.5rem" }, // Adjusted font size
+            fontSize: { xs: "1rem", md: "1.5rem" },
           }}
         >
           {category}
@@ -248,31 +291,31 @@ const CategorySection = ({
                 marginRight: 2,
                 color: "black",
                 cursor: "pointer",
-                fontSize: { xs: "0.875rem", md: "1rem" }, // Adjusted font size
+                fontSize: { xs: "0.875rem", md: "1rem" },
               }}
               onClick={() => onSeeAll(category)}
             >
               See All
             </Typography>
             <IconButton
-              onClick={() => scrollLeft()}
+              onClick={() => scrollLeft(scrollRef)}
               sx={{
-                backgroundColor: "#f0f0f0", // Lighter shade of grey
+                backgroundColor: "#f0f0f0",
                 color: "black",
                 borderRadius: "50%",
                 marginRight: 1,
-                "&:hover": { backgroundColor: "#e0e0e0" }, // Darker shade on hover
+                "&:hover": { backgroundColor: "#e0e0e0" },
               }}
             >
               <ArrowBackIosIcon />
             </IconButton>
             <IconButton
-              onClick={() => scrollRight()}
+              onClick={() => scrollRight(scrollRef)}
               sx={{
-                backgroundColor: "#f0f0f0", // Lighter shade of grey
+                backgroundColor: "#f0f0f0",
                 color: "black",
                 borderRadius: "50%",
-                "&:hover": { backgroundColor: "#e0e0e0" }, // Darker shade on hover
+                "&:hover": { backgroundColor: "#e0e0e0" },
               }}
             >
               <ArrowForwardIosIcon />
@@ -282,10 +325,9 @@ const CategorySection = ({
           <Typography
             variant="h6"
             sx={{
-              marginRight: 2,
               color: "black",
               cursor: "pointer",
-              fontSize: { xs: "0.875rem", md: "1rem" }, // Adjusted font size
+              fontSize: { xs: "0.875rem", md: "1rem" },
             }}
             onClick={onBack}
           >
@@ -298,7 +340,7 @@ const CategorySection = ({
           sx={{
             display: "grid",
             gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
-            gap: 2, // Adjusted gap between grid items
+            gap: 2,
           }}
         >
           {stores.map((store) => (
@@ -313,7 +355,7 @@ const CategorySection = ({
             overflowX: "scroll",
             scrollSnapType: "x mandatory",
             paddingBottom: 2,
-            gap: 2, // Adjusted gap between store cards
+            gap: 2,
           }}
         >
           {stores.map((store) => (
@@ -331,53 +373,73 @@ const StoreCard = ({ store }) => (
       position: "relative",
       flex: {
         xs: "0 0 calc(50% - 8px)",
-        md: "0 0 calc(25% - 8px)",
+        md: "0 0 calc(30%)",
       },
       height: {
-        xs: "calc((100vw / 4) * (240 / 220))",
-        md: "calc((100vw / 4) * (120 / 220))",
+        xs: "calc((100vw / 2.5) * (240 / 220))",
+        md: "calc((100vw / 5) * (120 / 220))",
       },
-      borderRadius: 2, // Added border radius
+      borderRadius: 1.5,
       overflow: "hidden",
       scrollSnapAlign: "center",
-      cursor: "pointer", // Added cursor pointer for better UX
-      marginBottom: 2, // Added margin bottom for spacing
-      marginRight: 2, // Added margin right for spacing
+      cursor: "pointer",
+      marginBottom: 1,
+      marginRight: 2,
+      display: "flex",
+      flexDirection: "column",
     }}
   >
-    <Image
-      src={store.image}
-      alt={store.name}
-      layout="fill"
-      objectFit="cover" // Cut the image when necessary
-    />
     <Box
       sx={{
-        position: "absolute",
-        bottom: 35,
-        left: 15,
-        backgroundColor: "orange",
-        color: "white",
-        padding: "2px 8px",
-        borderRadius: 1,
+        position: "relative",
+        height: "100%",
       }}
     >
-      <Typography variant="caption">{`Opens at ${store.openingTime}`}</Typography>
+      <Image
+        src={store.image}
+        alt={store.name}
+        layout="fill"
+        objectFit="cover"
+      />
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 10,
+          left: 15,
+          backgroundColor: "orange",
+          color: "white",
+          padding: "2px 8px",
+          borderRadius: 1,
+        }}
+      >
+        <Typography variant="caption">{`Opens at ${store.openingTime}`}</Typography>
+      </Box>
     </Box>
-    <Typography
-      variant="body2"
-      sx={{
-        position: "absolute",
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        color: "white",
-        width: "100%",
-        textAlign: "center",
-        padding: "4px 0",
-      }}
-    >
-      {store.name}
-    </Typography>
+    <Box sx={{ padding: 0, color: "black" }}>
+      <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+        {store.name}
+      </Typography>
+      <Typography
+        variant="body2"
+        sx={{ color: "text.secondary", marginTop: 0.2 }}
+      >
+        {store.description.slice(0, 20)}
+      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center", marginTop: 0.2 }}>
+        <Typography
+          variant="body2"
+          sx={{ display: "flex", alignItems: "center", marginLeft: 0.2 }}
+        >
+          <StarIcon
+            sx={{ color: "green", fontSize: "medium", marginRight: 0.2 }}
+          />
+          3.5
+        </Typography>
+        <Typography variant="body2" sx={{ marginLeft: 2 }}>
+          19+ ratings
+        </Typography>
+      </Box>
+    </Box>
   </Box>
 );
 
@@ -386,7 +448,21 @@ const SearchResultsSection = ({ stores }) => (
     sx={{
       display: "grid",
       gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
-      gap: 2, // Adjusted gap between grid items
+      gap: 2,
+    }}
+  >
+    {stores.map((store) => (
+      <StoreCard key={store._id} store={store} />
+    ))}
+  </Box>
+);
+
+const CategorySearchResultsSection = ({ stores }) => (
+  <Box
+    sx={{
+      display: "grid",
+      gridTemplateColumns: { xs: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+      gap: 2,
     }}
   >
     {stores.map((store) => (

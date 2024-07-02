@@ -6,7 +6,6 @@ import theme from "../utils/theme";
 import { SearchProvider } from "../context/SearchContext";
 
 export default function MyApp({ Component, pageProps }) {
-  // Cleanup JSS styles injected by Material-UI's SSR
   React.useEffect(() => {
     const jssStyles = document.querySelector("#jss-server-side");
     if (jssStyles) {
@@ -15,30 +14,24 @@ export default function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    // Wrap the entire app with SearchProvider for managing search state
-    <SearchProvider>
-      <React.Fragment>
-        {/* Set up document head with title and viewport */}
-        <Head>
-          <title>HeyFood Africa</title>
-          <meta
-            name="viewport"
-            content="minimum-scale=1, initial-scale=1, width=device-width"
-          />
-        </Head>
-        {/* ThemeProvider to apply Material-UI theme */}
+    <React.Fragment>
+      <Head>
+        <title>HeyFood Africa</title>
+        <meta
+          name="viewport"
+          content="minimum-scale=1, initial-scale=1, width=device-width"
+        />
+      </Head>
+      <SearchProvider>
         <ThemeProvider theme={theme}>
-          {/* Apply global CSS resets */}
           <CssBaseline />
-          {/* Render the main component of the app */}
           <Component {...pageProps} />
         </ThemeProvider>
-      </React.Fragment>
-    </SearchProvider>
+      </SearchProvider>
+    </React.Fragment>
   );
 }
 
-// PropTypes validation for MyApp props
 MyApp.propTypes = {
   Component: PropTypes.elementType.isRequired,
   pageProps: PropTypes.object.isRequired,

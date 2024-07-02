@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   AppBar,
@@ -15,8 +17,15 @@ import {
 } from "@mui/icons-material";
 import Image from "next/image";
 import logo from "../../public/images/logo-circle-green.svg";
+import { useSearch } from "../context/SearchContext";
 
 const Header = () => {
+  const { searchTerm, setSearchTerm } = useSearch();
+
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
   return (
     <AppBar
       position="static"
@@ -80,6 +89,8 @@ const Header = () => {
           <InputBase
             placeholder="Search restaurant or food"
             inputProps={{ "aria-label": "search" }}
+            value={searchTerm}
+            onChange={handleSearchChange}
             sx={{
               paddingLeft: "40px",
               width: "100%",

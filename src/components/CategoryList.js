@@ -1,9 +1,11 @@
-// components/CategoryList.tsx
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import Image from "next/image";
+import { useCategorySearch } from "../context/CategorySearchContext";
 
-const CategoryCard = ({ category }) => (
+const CategoryCard = ({ category, onClick }) => (
   <Box
     sx={{
       minWidth: 100,
@@ -15,8 +17,10 @@ const CategoryCard = ({ category }) => (
       margin: 2,
       backgroundColor: "white",
       borderRadius: 1,
-      flexShrink: 0, // Prevent shrinking
+      flexShrink: 0,
+      cursor: "pointer",
     }}
+    onClick={() => onClick(category.name)}
   >
     <Box
       sx={{
@@ -52,6 +56,7 @@ const CategoryCard = ({ category }) => (
 
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
+  const { setCategorySearchTerm } = useCategorySearch();
 
   useEffect(() => {
     fetch("https://heayfoodtestb.onrender.com/api/v1/category")
@@ -60,11 +65,15 @@ const CategoryList = () => {
       .catch((error) => console.error("Error fetching categories:", error));
   }, []);
 
+  const handleCategoryClick = (categoryName) => {
+    setCategorySearchTerm(categoryName);
+  };
+
   return (
     <Box
       sx={{
         display: "flex",
-        overflowX: "auto", // Use auto instead of scroll for better experience
+        overflowX: "auto",
         padding: 2,
         backgroundColor: "white",
         "&::-webkit-scrollbar": {
@@ -73,7 +82,11 @@ const CategoryList = () => {
       }}
     >
       {categories.map((category) => (
-        <CategoryCard key={category._id} category={category} />
+        <CategoryCard
+          key={category._id}
+          category={category}
+          onClick={handleCategoryClick}
+        />
       ))}
     </Box>
   );
